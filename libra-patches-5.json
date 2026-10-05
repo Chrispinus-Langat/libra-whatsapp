@@ -1,0 +1,91 @@
+{
+ "src/server.js": [
+  {
+   "name": "import extras",
+   "find": "import { sendSms } from './sms.js';",
+   "replace": "import { sendSms } from './sms.js';\nimport { registerExtras, ensureExtras, isBlocked, isBanned } from './extras.js';"
+  },
+  {
+   "name": "suspended accounts cannot use the API",
+   "find": "try { req.uid = verifyToken((req.headers.authorization || '').replace('Bearer ', '')); next(); }",
+   "replace": "try { req.uid = verifyToken((req.headers.authorization || '').replace('Bearer ', '')); if (isBanned(req.uid)) return res.status(403).json({ error: 'This account has been suspended.' }); next(); }"
+  },
+  {
+   "name": "suspended accounts cannot connect",
+   "find": "try { socket.data.uid = verifyToken(socket.handshake.auth?.token); next(); }",
+   "replace": "try { socket.data.uid = verifyToken(socket.handshake.auth?.token); if (isBanned(socket.data.uid)) return next(new Error('Suspended')); next(); }"
+  },
+  {
+   "name": "new message kinds",
+   "find": "const kind = ['text', 'image', 'file', 'voice'].includes(d.kind) ? d.kind : 'text';",
+   "replace": "const kind = ['text', 'image', 'file', 'voice', 'video', 'sticker', 'location', 'contact'].includes(d.kind) ? d.kind : 'text';"
+  },
+  {
+   "name": "kinds that need no upload",
+   "find": "if (kind === 'text' ? !body.trim() : !media_url) return null;",
+   "replace": "const mm = d.media_meta && typeof d.media_meta === 'object' ? d.media_meta : {};\n  const noUrlOk = kind === 'location' || kind === 'contact' || (kind === 'sticker' && mm.emoji);\n  if (kind === 'text' ? !body.trim() : (!media_url && !noUrlOk)) return null;\n  if (kind === 'location' && !(Math.abs(+mm.lat) <= 90 && Math.abs(+mm.lng) <= 180)) return null;\n  if (kind === 'contact' && !(mm.name && mm.phone)) return null;"
+  },
+  {
+   "name": "forwarded text keeps its flag",
+   "find": "const media_meta = kind === 'text' ? null : {",
+   "replace": "const media_meta = (kind === 'text' && !m.fwd) ? null : {"
+  },
+  {
+   "name": "clean the new meta fields",
+   "find": "name: String(m.name || '').slice(0, 200),",
+   "replace": "lat: Number.isFinite(+m.lat) ? +m.lat : undefined, lng: Number.isFinite(+m.lng) ? +m.lng : undefined,\n    label: String(m.label || '').slice(0, 120), phone: String(m.phone || '').slice(0, 20),\n    emoji: String(m.emoji || '').slice(0, 16), fwd: m.fwd ? true : undefined,\n    name: String(m.name || '').slice(0, 200),"
+  },
+  {
+   "name": "blocked people cannot message each other",
+   "find": "d = cleanMsg(d);",
+   "replace": "d = cleanMsg(d);\n  if (d && await isBlocked(uid, chatId)) return null;"
+  },
+  {
+   "name": "mount the extras routes",
+   "find": "app.get('/api/health', (_, res) => res.json({ ok: true }));",
+   "replace": "registerExtras({ app, io, guard });\n\napp.get('/api/health', (_, res) => res.json({ ok: true }));"
+  },
+  {
+   "name": "create extra tables on start",
+   "find": ".then(() => server.listen(",
+   "replace": ".then(() => ensureExtras()).then(() => server.listen("
+  },
+  {
+   "name": "push text for new kinds",
+   "find": "const label = { image: 'Photo', voice: 'Voice message', file: 'Document' };",
+   "replace": "const label = { image: 'Photo', voice: 'Voice message', file: 'Document', video: 'Video', sticker: 'Sticker', location: 'Location', contact: 'Contact' };"
+  },
+  {
+   "name": "refresh the cached app",
+   "find": "const CACHE = 'libra-v1';",
+   "replace": "const CACHE = 'libra-v2';"
+  }
+ ],
+ "public/index.html": [
+  {
+   "name": "v2 styles and emoji font",
+   "find": "</head>",
+   "replace": "<link href=\"https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap\" rel=\"stylesheet\">\n<link rel=\"stylesheet\" href=\"/v2.css\">\n</head>"
+  },
+  {
+   "name": "v2 script",
+   "find": "</body>",
+   "replace": "<script src=\"/v2.js\"></script>\n</body>"
+  },
+  {
+   "name": "avatars can be photos",
+   "find": "const avatar=(c,size='w-12 h-12')=>",
+   "replace": "const avatar=(c,size='w-12 h-12')=>AVATAR(c,size);const _avatarV1=(c,size='w-12 h-12')=>"
+  },
+  {
+   "name": "profile photo survives typing",
+   "find": "const prUpd=()=>{$('prAv').textContent=ini(P.name||'Me')};",
+   "replace": "const prUpd=()=>{if(window.xPaintProfileAvatar&&ME&&ME.avatar_url)return xPaintProfileAvatar();$('prAv').textContent=ini(P.name||'Me')};"
+  },
+  {
+   "name": "start the app after v2 has loaded",
+   "find": "renderTabs();renderNav();regSW();init();",
+   "replace": "document.addEventListener('DOMContentLoaded',()=>{renderTabs();renderNav();regSW();init()});"
+  }
+ ]
+}

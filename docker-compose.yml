@@ -1,0 +1,39 @@
+# One small Linux VPS runs everything: the app, automatic HTTPS (Caddy) and a TURN server for calls.
+# The database stays on Neon, so only DATABASE_URL in .env connects to it.
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+    volumes:
+      - uploads:/app/uploads
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    depends_on: [app]
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  coturn:
+    image: coturn/coturn:latest
+    restart: unless-stopped
+    network_mode: host          # TURN needs real UDP ports
+    command: >
+      -n --log-file=stdout --fingerprint --no-cli
+      --use-auth-secret --static-auth-secret=${TURN_SECRET}
+      --realm=${DOMAIN} --external-ip=${PUBLIC_IP}
+      --min-port=49160 --max-port=49200
+      --no-tls --no-dtls --no-multicast-peers
+
+volumes:
+  uploads:
+  caddy_data:
+  caddy_config:

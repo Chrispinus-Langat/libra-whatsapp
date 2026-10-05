@@ -1,0 +1,73 @@
+{
+ "src/server.js": [
+  {
+   "name": "import sms",
+   "find": "import { q, pool } from './db.js';",
+   "replace": "import { q, pool } from './db.js';\nimport { sendSms } from './sms.js';"
+  },
+  {
+   "name": "turn env",
+   "find": "const pushOn = !!(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);",
+   "replace": "const pushOn = !!(VAPID_PUBLIC_KEY && VAPID_PRIVATE_KEY);\nconst { TURN_URL, TURN_SECRET } = process.env;"
+  },
+  {
+   "name": "trust proxy",
+   "find": "const app = express();",
+   "replace": "const app = express();\napp.set('trust proxy', 1);   // we sit behind Caddy in production"
+  },
+  {
+   "name": "otp cooldown",
+   "find": "const code = String(crypto.randomInt(100000, 1000000));",
+   "replace": "const [prev] = await q('SELECT expires_at FROM otp_codes WHERE phone=$1', [phone]);\n  if (prev && new Date(prev.expires_at) > new Date(Date.now() + 4 * 60_000))\n    return res.status(429).json({ error: 'Please wait a minute before asking for another code.' });\n  const code = String(crypto.randomInt(100000, 1000000));"
+  },
+  {
+   "name": "send the sms",
+   "find": "if (NODE_ENV !== 'production') console.log(`[dev] OTP for ${phone}: ${code}`);",
+   "replace": "try { await sendSms(phone, `Your LIBRA code is ${code}. It expires in 5 minutes. Do not share it with anyone.`); }\n  catch (e) {\n    console.error('[sms]', e.message);\n    await q('DELETE FROM otp_codes WHERE phone=$1', [phone]);\n    return res.status(502).json({ error: 'We could not send the SMS. Please try again shortly.' });\n  }"
+  },
+  {
+   "name": "remove todo",
+   "find": "// TODO: send `code` by SMS (Twilio / Africa's Talking) in production",
+   "replace": "// the code is delivered by SMS above (see src/sms.js)"
+  },
+  {
+   "name": "socket flood limit",
+   "find": "socket.on('message:send', async (d, ack) => {",
+   "replace": "let sent = [];   // at most 30 messages per 10 seconds per connection\n  socket.on('message:send', async (d, ack) => {\n    const now = Date.now(); sent = sent.filter(t => now - t < 10_000);\n    if (sent.length >= 30) return ack?.({ ok: false, error: 'slow down' });\n    sent.push(now);"
+  },
+  {
+   "name": "turn credentials",
+   "find": "app.get('/api/health', (_, res) => res.json({ ok: true }));",
+   "replace": "// Short-lived TURN credentials (coturn \"use-auth-secret\" scheme) so calls work across different networks.\napp.get('/api/turn', guard, (req, res) => {\n  const iceServers = [{ urls: 'stun:stun.l.google.com:19302' }];\n  if (TURN_URL && TURN_SECRET) {\n    const username = `${Math.floor(Date.now() / 1000) + 3600}:${req.uid}`;\n    const credential = crypto.createHmac('sha1', TURN_SECRET).update(username).digest('base64');\n    iceServers.push({ urls: [`turn:${TURN_URL}:3478?transport=udp`, `turn:${TURN_URL}:3478?transport=tcp`], username, credential });\n  }\n  res.json({ iceServers });\n});\n\napp.get('/api/health', (_, res) => res.json({ ok: true }));"
+  }
+ ],
+ "public/index.html": [
+  {
+   "name": "compiled tailwind",
+   "find": "<script src=\"https://cdn.tailwindcss.com\"></script>",
+   "replace": "<link rel=\"stylesheet\" href=\"/tw.css\">"
+  },
+  {
+   "name": "ice servers from server",
+   "find": "const ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};",
+   "replace": "let ICE={iceServers:[{urls:'stun:stun.l.google.com:19302'}]};"
+  },
+  {
+   "name": "load ice on login",
+   "find": "loadStatuses().catch(console.error);loadCalls().catch(console.error);",
+   "replace": "loadStatuses().catch(console.error);loadCalls().catch(console.error);api('/turn').then(r=>{ICE=r}).catch(()=>{});"
+  }
+ ],
+ "package.json": {
+  "merge": {
+   "scripts": {
+    "build:css": "tailwindcss -c tailwind.config.js -i tw-input.css -o public/tw.css --minify",
+    "predev": "npm run build:css",
+    "prestart": "npm run build:css"
+   },
+   "devDependencies": {
+    "tailwindcss": "^3.4.17"
+   }
+  }
+ }
+}

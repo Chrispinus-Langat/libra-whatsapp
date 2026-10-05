@@ -1,0 +1,76 @@
+{
+ "src/server.js": [
+  {
+   "name": "validation helpers",
+   "find": "// ---------- schema (creates the extra tables on first start) ----------",
+   "replace": "// ---------- input validation (never trust what a client sends) ----------\nconst UPLOAD_RE = /^\\/uploads\\/[\\w.-]{1,100}$/;     // only files that came from our own /api/upload\nfunction cleanMsg(d = {}) {\n  const kind = ['text', 'image', 'file', 'voice'].includes(d.kind) ? d.kind : 'text';\n  const media_url = UPLOAD_RE.test(d.media_url || '') ? d.media_url : null;\n  const body = String(d.body || '').slice(0, 4000);\n  if (kind === 'text' ? !body.trim() : !media_url) return null;\n  const m = d.media_meta && typeof d.media_meta === 'object' ? d.media_meta : {};\n  const media_meta = kind === 'text' ? null : {\n    name: String(m.name || '').slice(0, 200),\n    size: String(m.size || '').slice(0, 20),\n    duration: Math.min(3600, Math.max(0, Number(m.duration) || 0)),\n    waveform: (Array.isArray(m.waveform) ? m.waveform : []).slice(0, 64).map(n => Math.min(100, Math.max(0, Math.round(Number(n) || 0))))\n  };\n  const when = d.scheduled_at ? new Date(d.scheduled_at) : null;\n  return { body, kind, media_url, media_meta, reply_to: d.reply_to || null, scheduled_at: when && !isNaN(when) ? when.toISOString() : null };\n}\nfunction cleanProfile(k, v) {\n  if (k.startsWith('hide_')) return !!v;\n  if (k === 'accent') return /^#[0-9a-f]{6}$/i.test(v) ? v : '#14b8a6';\n  if (k === 'avatar_url') return UPLOAD_RE.test(v || '') ? v : null;\n  return String(v ?? '').slice(0, k === 'about' ? 140 : 60);\n}\n\n// ---------- schema (creates the extra tables on first start) ----------"
+  },
+  {
+   "name": "validate every message",
+   "find": "async function saveMessage(uid, chatId, d) {",
+   "replace": "async function saveMessage(uid, chatId, d) {\n  d = cleanMsg(d);\n  if (!d) return null;"
+  },
+  {
+   "name": "validate status",
+   "find": "const { body = '', bg = '#6366f1', media_url = null } = req.body;",
+   "replace": "const body = String(req.body.body || '').slice(0, 700);\n  const bg = /^#[0-9a-f]{3,8}$/i.test(req.body.bg || '') ? req.body.bg : '#6366f1';\n  const media_url = UPLOAD_RE.test(req.body.media_url || '') ? req.body.media_url : null;\n  if (!body.trim() && !media_url) return res.status(400).json({ error: 'Empty status' });"
+  },
+  {
+   "name": "validate profile",
+   "find": "[req.uid, ...keys.map(k => req.body[k])]",
+   "replace": "[req.uid, ...keys.map(k => cleanProfile(k, req.body[k]))]"
+  },
+  {
+   "name": "general API rate limit",
+   "find": "// ---------- auth ----------",
+   "replace": "app.use('/api', rateLimit({ windowMs: 60_000, limit: 600 }));   // behind a proxy/host also add: app.set('trust proxy', 1)\n\n// ---------- auth ----------"
+  }
+ ],
+ "public/index.html": [
+  {
+   "name": "safe upload URLs",
+   "find": "const esc=s=>String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));",
+   "replace": "const esc=s=>String(s==null?'':s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]));\nconst safeU=u=>/^\\/uploads\\/[\\w.-]{1,100}$/.test(u||'')?u:'';"
+  },
+  {
+   "name": "image: no inline JS with data",
+   "find": "<img src=\"${esc(m.url)}\" loading=\"lazy\" class=\"rounded-lg max-h-72 max-w-full cursor-zoom-in\" alt=\"Photo\" onclick=\"event.stopPropagation();viewImg('${esc(m.url)}')\">",
+   "replace": "<img src=\"${esc(safeU(m.url))}\" data-u=\"${esc(safeU(m.url))}\" loading=\"lazy\" class=\"rounded-lg max-h-72 max-w-full cursor-zoom-in\" alt=\"Photo\" onclick=\"event.stopPropagation();viewImg(this.dataset.u)\">"
+  },
+  {
+   "name": "file link",
+   "find": "<a href=\"${esc(m.url)}\" target=\"_blank\" rel=\"noopener\"",
+   "replace": "<a href=\"${esc(safeU(m.url))}\" target=\"_blank\" rel=\"noopener\""
+  },
+  {
+   "name": "waveform numbers only",
+   "find": "style=\"height:${h}%\"",
+   "replace": "style=\"height:${Math.max(5,Math.min(100,Number(h)||0))}%\""
+  },
+  {
+   "name": "escape reaction emoji",
+   "find": ".map(([e,n])=>e+(n>1?",
+   "replace": ".map(([e,n])=>esc(e)+(n>1?"
+  },
+  {
+   "name": "status image",
+   "find": "<img src=\"${esc(it.img)}\"",
+   "replace": "<img src=\"${esc(safeU(it.img))}\""
+  },
+  {
+   "name": "double-tap closes menu",
+   "find": "function reactQuick(i,emoji){",
+   "replace": "function reactQuick(i,emoji){$('ctx').style.display='none';"
+  },
+  {
+   "name": "only auto-scroll when near bottom",
+   "find": "if(cur===c)renderMsgs(true);renderList();",
+   "replace": "if(cur===c){const bx=$('msgs'),near=m.out||bx.scrollHeight-bx.scrollTop-bx.clientHeight<160;renderMsgs(near)}renderList();"
+  },
+  {
+   "name": "keep scroll position on re-render",
+   "find": "box.innerHTML=h;if(toBottom)box.scrollTop=box.scrollHeight;",
+   "replace": "const keep=box.scrollTop;box.innerHTML=h;box.scrollTop=toBottom?box.scrollHeight:keep;"
+  }
+ ]
+}

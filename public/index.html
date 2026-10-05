@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LIBRA</title>
+<meta name="theme-color" content="#14b8a6">
+<meta name="description" content="Balanced, private messaging">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" type="image/png" href="/icon-96.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LIBRA">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Noto+Color+Emoji&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/tw.css">
+<link rel="stylesheet" href="/app.css">
+<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#6366f1"/></linearGradient>
+<symbol id="logo" viewBox="0 0 48 48"><path d="M24 3C12 3 3 12 3 23c0 4 1.2 7.6 3.3 10.7L4 44l10.7-2.7C17.6 42.9 20.7 43.6 24 43.6 36 43.6 45 34.6 45 23.3 45 12 36 3 24 3z" fill="url(#g)"/><path d="M13 31h22M13 26h7.5a6.5 6.5 0 1 1 7 0H35" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="tk1" viewBox="0 0 17 12"><path d="M3 6.5l3.3 3.3L13 2.5"/></symbol>
+<symbol id="tk2" viewBox="0 0 17 12"><path d="M1 6.5l3.3 3.3L10 2.5"/><path d="M6.5 9.2l.6.6L14 2.5"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+<symbol id="i-video" viewBox="0 0 24 24"><path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="19" r="1.6" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-clip" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></symbol>
+<symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+<symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M2 2l20 20"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2"/><path d="M5 10v2a7 7 0 0 0 12 5"/><path d="M15 9.34V5a3 3 0 0 0-5.68-1.33"/><path d="M9 9v3a3 3 0 0 0 5.12 2.12"/><path d="M12 19v3"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></symbol>
+<symbol id="i-next" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+<symbol id="i-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></symbol>
+<symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+<symbol id="i-eraser" viewBox="0 0 24 24"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
+<symbol id="i-reply" viewBox="0 0 24 24"><path d="m9 17-5-5 5-5"/><path d="M20 18v-2a4 4 0 0 0-4-4H4"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+<symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+<symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><polygon points="7 4 20 12 7 20 7 4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></symbol>
+<symbol id="i-bell-off" viewBox="0 0 24 24"><path d="M8.7 3A6 6 0 0 1 18 8a21.3 21.3 0 0 0 .6 5"/><path d="M17 17H3s3-2 3-9a4.67 4.67 0 0 1 .3-1.7"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/><path d="m2 2 20 20"/></symbol>
+<symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></symbol>
+<symbol id="i-in" viewBox="0 0 24 24"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></symbol>
+<symbol id="i-contact" viewBox="0 0 24 24"><path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"/><rect width="18" height="18" x="3" y="4" rx="2"/><circle cx="12" cy="10" r="2"/><path d="M8 2v2"/><path d="M16 2v2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></symbol>
+<symbol id="i-sticker" viewBox="0 0 24 24"><path d="M15.5 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8.5L15.5 3z"/><path d="M15 3v6h6"/><path d="M9 13h.01M15 13h.01"/><path d="M9 17s1 1 3 1 3-1 3-1"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+<symbol id="i-briefcase" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="6" rx="2"/><path d="M16 6V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+<symbol id="i-mail" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></symbol>
+<symbol id="i-forward" viewBox="0 0 24 24"><path d="m15 17 5-5-5-5"/><path d="M4 18v-2a4 4 0 0 1 4-4h12"/></symbol>
+<symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+<symbol id="i-flag" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></symbol>
+<symbol id="i-archive" viewBox="0 0 24 24"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></symbol>
+<symbol id="i-poll" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16V9"/><path d="M12 16V5"/><path d="M17 16v-4"/></symbol>
+<symbol id="i-bookmark" viewBox="0 0 24 24"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/></symbol>
+<symbol id="i-volume" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></symbol>
+<symbol id="i-type" viewBox="0 0 24 24"><path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/></symbol>
+<symbol id="i-at" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8"/></symbol>
+<symbol id="i-columns" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></symbol>
+</defs></svg>
+
+<div id="app" class="h-full flex max-w-[1600px] mx-auto panel">
+  <aside id="side" class="w-full md:w-[380px] md:flex flex-col border-r bd panel flex-none flex h-full relative">
+    <header class="flex items-center gap-1 px-4 h-16 flex-none">
+      <svg class="w-9 h-9 mr-2 flex-none"><use href="#logo"/></svg>
+      <h1 class="text-xl font-bold tracking-[.25em] flex-1">LIBRA</h1>
+      <button onclick="toggleTheme()" class="ib row" title="Theme"><svg class="ic"><use href="#i-moon"/></svg></button>
+      <button onclick="openPn('starred')" class="ib row" title="Starred messages"><svg class="ic"><use href="#i-star"/></svg></button>
+      <button onclick="openPn('sched')" class="ib row" title="Scheduled messages"><svg class="ic"><use href="#i-clock"/></svg></button>
+      <button onclick="openSet(true)" class="ib row" title="Settings"><svg class="ic"><use href="#i-gear"/></svg></button>
+    </header>
+    <div id="nbar"></div>
+    <div id="nav" class="flex px-2 border-b bd text-sm font-medium mb-2"></div>
+    <div id="qwrap" class="px-3 pb-2"><div class="flex items-center gap-2 rounded-xl px-3 h-10" style="background:var(--bg)"><svg class="ic ic-s mut"><use href="#i-search"/></svg><input id="q" oninput="renderList()" placeholder="Search chats and messages" class="flex-1 text-sm" autocomplete="off"></div></div>
+    <nav id="tabs" class="flex px-3 gap-2 pb-2 text-sm overflow-x-auto whitespace-nowrap scr"></nav>
+    <div id="list" class="flex-1 overflow-y-auto scr"></div>
+    <button id="fab" onclick="fab(event)" class="absolute bottom-5 right-5 w-14 h-14 rounded-2xl accbg text-white shadow-lg flex items-center justify-center" title="New chat"></button>
+  </aside>
+
+  <main id="main" class="hidden md:flex flex-1 flex-col min-w-0 h-full">
+    <div id="empty" class="flex-1 flex flex-col items-center justify-center text-center wall px-6">
+      <svg class="w-24 h-24 mb-4"><use href="#logo"/></svg>
+      <h2 class="text-2xl font-semibold tracking-[.3em]">LIBRA</h2>
+      <p class="mut mt-2 max-w-sm text-sm">Balanced, private messaging. Select a chat to begin.</p>
+    </div>
+    <section id="chat" class="hidden flex-1 flex-col min-h-0 relative">
+      <header id="chatHead" class="flex items-center gap-1 px-1 md:px-3 h-16 border-b bd panel flex-none">
+        <button onclick="back()" class="md:hidden ib flex-none"><svg class="ic"><use href="#i-back"/></svg></button>
+        <div id="hAv" class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold flex-none cursor-pointer" onclick="openPeerProfile()"></div>
+        <div id="hInfo" class="flex-1 min-w-0 cursor-pointer" onclick="openPeerProfile()"><div id="hName" class="font-semibold truncate"></div><div id="hSt" class="text-xs mut h-4 truncate"></div></div>
+        <button onclick="startCall(cur.id,1)" class="ib row flex-none" title="Video call"><svg class="ic"><use href="#i-video"/></svg></button>
+        <button onclick="startCall(cur.id,0)" class="ib row flex-none" title="Voice call"><svg class="ic"><use href="#i-phone"/></svg></button>
+        <button onclick="chatMenu(event)" class="ib row flex-none" title="More"><svg class="ic"><use href="#i-more"/></svg></button>
+      </header>
+      <header id="selbar" style="display:none" class="items-center gap-1 px-2 h-16 border-b bd panel flex-none">
+        <button onclick="selClear()" class="ib" title="Cancel"><svg class="ic"><use href="#i-x"/></svg></button>
+        <div id="selN" class="flex-1 font-semibold">0 selected</div>
+        <button onclick="selStar()" class="ib" title="Star"><svg class="ic"><use href="#i-star"/></svg></button>
+        <button onclick="selCopy()" class="ib" title="Copy"><svg class="ic"><use href="#i-copy"/></svg></button>
+        <button onclick="selForward()" class="ib" title="Forward"><svg class="ic"><use href="#i-forward"/></svg></button>
+        <button onclick="selDelete()" class="ib text-red-500" title="Delete for me"><svg class="ic"><use href="#i-trash"/></svg></button>
+      </header>
+      <div id="msgs" class="flex-1 overflow-y-auto scr wall px-3 md:px-12 py-4 flex flex-col gap-1.5"></div>
+      <button id="xdown" style="display:none" onclick="xToBottom()" class="absolute right-4 bottom-24 w-10 h-10 rounded-full panel border bd shadow-lg flex items-center justify-center z-10" title="Latest messages"><svg class="ic"><use href="#i-chevron-down"/></svg></button>
+      <div id="xblk" style="display:none" class="items-center gap-3 px-4 py-3 border-t bd panel"></div>
+      <div id="reply" class="hidden px-4 py-2 border-t bd panel text-sm flex items-center gap-2"><div class="flex-1 border-l-4 pl-2 min-w-0" style="border-color:var(--accent)"><div id="replyN" class="text-xs font-semibold acc"></div><div id="replyTx" class="truncate mut"></div></div><button onclick="setReply(null)" class="ib"><svg class="ic ic-s"><use href="#i-x"/></svg></button></div>
+      <footer id="foot" class="flex items-end gap-0.5 md:gap-1 p-1.5 md:p-3 panel border-t bd flex-none relative">
+        <div id="att" class="hidden absolute bottom-16 left-2 md:left-3 panel border bd rounded-2xl p-2 shadow-xl text-sm z-20"></div>
+        <div id="emo" class="hidden panel border bd rounded-2xl shadow-xl overflow-hidden"><div id="emoT" class="flex border-b bd"></div><div id="emoG" class="emoGrid scr"></div></div>
+        <div id="xstk" class="hidden panel border bd rounded-2xl shadow-xl overflow-y-auto scr"></div>
+        <div id="mnt" class="panel border bd rounded-xl shadow-xl"></div>
+        <input type="file" id="fImg" accept="image/*" class="hidden" onchange="pick(this,'img')">
+        <input type="file" id="fVid" accept="video/*" class="hidden" onchange="pick(this,'video')">
+        <input type="file" id="fDoc" class="hidden" onchange="pick(this,'doc')">
+        <input type="file" id="fCam" accept="image/*,video/*" capture="environment" class="hidden" onchange="pick(this,'auto')">
+        <input type="file" id="fStk" accept="image/*" class="hidden" onchange="makeSticker(this)">
+        <div id="rec" style="display:none" class="absolute inset-0 panel flex items-center gap-3 px-4 z-10"><span class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></span><span id="recT" class="text-sm tabular-nums">0:00</span><span class="flex-1 mut text-sm">Recording…</span><button onclick="stopRec(false)" class="ib" title="Cancel"><svg class="ic"><use href="#i-trash"/></svg></button><button onclick="stopRec(true)" class="w-11 h-11 rounded-full accbg text-white flex items-center justify-center"><svg class="ic"><use href="#i-send"/></svg></button></div>
+        <button id="emoBtn" type="button" onclick="event.stopPropagation();togglePanel('emo')" class="ib flex-none desk-only" title="Emoji"><svg class="ic"><use href="#i-smile"/></svg></button>
+        <button id="stkBtn" type="button" onclick="event.stopPropagation();togglePanel('xstk')" class="ib flex-none" title="Stickers"><svg class="ic"><use href="#i-sticker"/></svg></button>
+        <button id="attBtn" type="button" onclick="event.stopPropagation();togglePanel('att')" class="ib flex-none" title="Attach"><svg class="ic"><use href="#i-clip"/></svg></button>
+        <textarea id="inp" rows="1" oninput="upd()" onkeydown="onKey(event)" placeholder="Type a message" autocomplete="off" autocapitalize="sentences" enterkeyhint="send" class="flex-1 rounded-2xl px-3 md:px-4 py-2.5 text-sm resize-none max-h-32" style="background:var(--bg)"></textarea>
+        <button id="sendBtn" onclick="sendOrRec()" class="w-10 h-10 md:w-11 md:h-11 rounded-full accbg text-white flex-none flex items-center justify-center"></button>
+      </footer>
+    </section>
+  </main>
+</div>
+
+<div id="ctx" style="display:none" class="fixed z-[70] panel border bd rounded-xl shadow-xl py-1 text-sm min-w-[190px]"></div>
+<div id="toast" style="display:none" class="fixed left-1/2 -translate-x-1/2 bottom-24 z-[100] rounded-xl px-4 py-2.5 text-sm text-white shadow-lg max-w-[90vw] text-center" role="status"></div>
+<div id="nb" onclick="nbClick()"></div>
+
+<div id="pn" style="display:none" class="fixed inset-0 z-50 bg-black/50 justify-end" onclick="if(event.target===this)this.style.display='none'"><div class="w-full max-w-sm h-full panel overflow-y-auto scr p-5"><div class="flex items-center mb-4"><h2 id="pnT" class="font-bold text-lg flex-1 truncate"></h2><button onclick="$('pn').style.display='none'" class="ib"><svg class="ic"><use href="#i-x"/></svg></button></div><div id="pnB"></div></div></div>
+
+<div id="xov" style="display:none" class="fixed inset-0 z-[75] bg-black/50 items-center justify-center md:p-4" onclick="if(event.target===this)xOvClose()"><div class="panel w-full h-full md:h-[min(640px,88vh)] md:max-w-md md:rounded-2xl flex flex-col overflow-hidden"><header class="flex items-center gap-2 px-3 h-14 border-b bd flex-none"><button onclick="xOvClose()" class="ib"><svg class="ic"><use href="#i-back"/></svg></button><div id="xovT" class="font-semibold flex-1 truncate"></div></header><div id="xovB" class="flex-1 overflow-y-auto scr"></div><div id="xovF" class="p-3 border-t bd" style="display:none"></div></div></div>
+
+<div id="prof" style="display:none" class="fixed inset-0 z-[68] bg-black/60 items-center justify-center p-4" onclick="if(event.target===this)closeProfile()">
+  <div class="modalC w-full max-w-sm max-h-[92vh] overflow-y-auto scr">
+    <div class="p-4 flex items-center border-b bd"><h3 id="profT" class="font-bold flex-1">Profile</h3><button onclick="closeProfile()" class="ib"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="p-5 text-center">
+      <div id="profAv" class="avLg"></div>
+      <input type="file" id="fAv" accept="image/*" class="hidden" onchange="uploadAvatar(this)">
+      <h3 id="profName" class="mt-4 text-lg font-semibold"></h3>
+      <p id="profAbout" class="mut text-sm mt-1"></p>
+      <p id="profPhone" class="mut text-xs mt-1"></p>
+      <div id="profBiz"></div>
+      <div id="profActions" class="mt-5 flex flex-col gap-2"></div>
+    </div>
+  </div>
+</div>
+
+<div id="pv" style="display:none" class="fixed inset-0 z-[72] bg-black/95 flex-col text-white">
+  <header class="flex items-center gap-2 p-3 flex-none">
+    <button onclick="closePreview()" class="ib text-white"><svg class="ic ic-l"><use href="#i-x"/></svg></button>
+    <div id="pvTitle" class="flex-1 text-center text-sm opacity-80">Preview</div>
+    <button onclick="sendPreview()" class="w-11 h-11 rounded-full accbg flex items-center justify-center" title="Send"><svg class="ic"><use href="#i-send"/></svg></button>
+  </header>
+  <div id="pvBody" class="flex-1 flex items-center justify-center p-4 min-h-0 overflow-hidden"></div>
+  <div class="p-3 flex-none"><div class="flex items-center gap-2 rounded-2xl px-3 py-2" style="background:rgba(255,255,255,.12)"><input id="pvCap" placeholder="Add a caption…" class="flex-1 text-sm" style="color:#fff" autocomplete="off"></div></div>
+</div>
+
+<div id="mv" style="display:none" class="fixed inset-0 z-[86] bg-black text-white flex-col">
+  <div id="mvTop" class="flex items-center gap-1 px-2 h-14 flex-none bg-gradient-to-b from-black/70 to-transparent absolute top-0 left-0 right-0 z-10">
+    <button onclick="mvClose()" class="ib text-white"><svg class="ic ic-l"><use href="#i-x"/></svg></button>
+    <div class="flex-1 min-w-0 text-center"><div id="mvName" class="font-medium text-sm truncate px-2"></div><div id="mvTime" class="text-xs opacity-70"></div></div>
+    <button onclick="mvDownload()" class="ib text-white" title="Download"><svg class="ic"><use href="#i-download"/></svg></button>
+    <button onclick="mvShare()" class="ib text-white" title="Share"><svg class="ic"><use href="#i-share"/></svg></button>
+  </div>
+  <div id="mvStage" class="flex-1 flex items-center justify-center overflow-hidden relative"><div id="mvSlot" class="absolute inset-0 flex items-center justify-center"></div></div>
+  <div id="mvBottom" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent"><div id="mvIdx" class="text-center text-xs opacity-70 mb-1"></div><div id="mvCaption" class="text-sm"></div></div>
+</div>
+
+<div id="sch" style="display:none" class="fixed inset-0 z-50 bg-black/50 items-center justify-center p-4"><div class="panel rounded-2xl p-5 w-full max-w-xs"><h3 class="font-semibold mb-2">Schedule message</h3><p id="schM" class="text-sm mut mb-3 truncate"></p><input type="datetime-local" id="schT" class="w-full border bd rounded-lg px-3 py-2 text-sm mb-4"><div class="flex justify-end gap-2"><button onclick="$('sch').style.display='none'" class="px-3 py-2 text-sm mut">Cancel</button><button onclick="saveSch()" class="px-4 py-2 text-sm rounded-lg accbg text-white">Schedule</button></div></div></div>
+
+<div id="auth" class="fixed inset-0 z-[90] flex items-center justify-center p-6" style="background:var(--bg)"><div class="panel border bd rounded-3xl p-8 w-full max-w-sm text-center shadow-xl">
+  <svg class="w-20 h-20 mx-auto mb-3"><use href="#logo"/></svg><h1 class="text-2xl font-bold tracking-[.3em] mb-1">LIBRA</h1><p class="mut text-sm mb-6">Balanced, private messaging</p>
+  <div id="au1"><input id="auName" placeholder="Your name" autocomplete="name" class="w-full border bd rounded-xl px-4 py-3 text-sm mb-3"><input id="auPh" type="tel" inputmode="tel" autocomplete="tel" placeholder="Phone (+254712345678)" class="w-full border bd rounded-xl px-4 py-3 text-sm mb-4"><button onclick="auNext()" class="w-full accbg text-white rounded-xl py-3 font-medium">Continue</button></div>
+  <div id="au2" style="display:none"><p class="text-sm mut mb-3">Enter the 6-digit code sent to <b id="auTo"></b></p><input id="auCode" maxlength="6" inputmode="numeric" autocomplete="one-time-code" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===6)auVerify()" placeholder="······" class="w-full border bd rounded-xl px-4 py-3 mb-4 text-center !text-xl tracking-[.5em]"><button onclick="auVerify()" class="w-full accbg text-white rounded-xl py-3 font-medium">Verify &amp; enter</button><p class="text-xs mut mt-3">Didn't get it? <button id="auResend" onclick="auResend()" class="underline acc" disabled>Resend in 60s</button> &middot; <button onclick="auChange()" class="underline">Change number</button></p></div>
+  <p id="auErr" class="text-sm text-red-500 mt-3 min-h-5"></p></div></div>
+
+<div id="lk" style="display:none;background:var(--bg)" class="fixed inset-0 z-[95] flex-col items-center justify-center gap-5">
+  <svg class="w-14 h-14"><use href="#logo"/></svg><h2 id="lkT" class="font-semibold"></h2><div id="lkD"></div><div id="lkK" class="grid grid-cols-3 gap-4 mt-2 place-items-center"></div><button id="lkC" onclick="lkCancel()" class="mut text-sm">Cancel</button></div>
+
+<div id="call" style="display:none;background:linear-gradient(160deg,#0f172a,#312e81)" class="fixed inset-0 z-[80] flex-col items-center text-white py-16">
+  <video id="rVid" autoplay playsinline style="display:none;z-index:-1" class="absolute inset-0 w-full h-full object-cover"></video>
+  <video id="cVid" autoplay muted playsinline style="display:none" class="absolute right-4 top-4 w-28 h-40 object-cover rounded-xl bg-black/40 z-10"></video>
+  <div id="cAv" class="w-28 h-28 rounded-full flex items-center justify-center text-3xl font-semibold mt-10"></div><h2 id="cN" class="text-2xl font-semibold mt-5"></h2><p id="cS" class="opacity-80 mt-1 text-sm"></p><div class="flex-1"></div>
+  <div class="flex gap-5 items-center">
+    <button id="cMute" onclick="cTog()" class="cb" title="Mute"><svg class="ic ic-l"><use href="#i-mic"/></svg></button>
+    <button id="cCam" onclick="cCamTog()" class="cb" title="Camera"><svg class="ic ic-l"><use href="#i-video"/></svg></button>
+    <button id="cAcc" onclick="acceptCall()" style="display:none" class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center" title="Answer"><svg class="ic ic-l"><use href="#i-phone"/></svg></button>
+    <button onclick="endCall()" class="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center" title="End call"><svg class="ic ic-l" style="transform:rotate(135deg)"><use href="#i-phone"/></svg></button>
+  </div></div>
+
+<div id="cpk" style="display:none" class="fixed inset-0 z-[55] bg-black/50 items-center justify-center md:p-4">
+  <div class="panel w-full h-full md:h-[min(680px,90vh)] md:max-w-md md:rounded-2xl flex flex-col overflow-hidden relative">
+    <header class="flex items-center gap-2 px-3 h-16 flex-none border-b bd">
+      <button onclick="cpkBack()" class="ib row"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="flex-1 min-w-0"><div id="cpkT" class="font-semibold"></div><div id="cpkS" class="text-xs mut"></div></div>
+    </header>
+    <div id="cpkS1" class="flex-1 min-h-0 flex flex-col">
+      <div id="cpkChips" class="flex gap-2 overflow-x-auto scr px-3 pt-2 empty:hidden"></div>
+      <div class="px-3 py-2"><div class="flex items-center gap-2 rounded-xl px-3 h-10" style="background:var(--bg)"><svg class="ic ic-s mut"><use href="#i-search"/></svg><input id="cpkQ" oninput="renderPicker()" placeholder="Search name or number" class="flex-1 text-sm" inputmode="search" autocomplete="off"></div></div>
+      <div id="cpkList" class="flex-1 overflow-y-auto scr pb-24"></div>
+    </div>
+    <div id="cpkS2" style="display:none" class="flex-1 overflow-y-auto scr p-5">
+      <input id="cpkName" placeholder="Group name" maxlength="60" autocomplete="off" class="w-full border-b bd pb-2 text-lg mb-6">
+      <p class="text-xs mut mb-2">Members</p><div id="cpkMem"></div>
+    </div>
+    <button id="cpkGo" onclick="cpkNext()" style="display:none" class="absolute bottom-5 right-5 w-14 h-14 rounded-2xl accbg text-white shadow-lg items-center justify-center"></button>
+  </div>
+</div>
+
+<div id="sv" style="display:none" class="fixed inset-0 z-[60] flex-col text-white" onclick="tapSt(event)">
+  <div id="svBars" class="flex gap-1 px-3 pt-3"></div>
+  <div class="flex items-center gap-1 px-3 py-3">
+    <div id="svAv" class="w-9 h-9 rounded-full flex items-center justify-center font-semibold bg-white/20 mr-2"></div>
+    <div class="flex-1 min-w-0"><div id="svN" class="font-medium text-sm truncate"></div><div id="svT" class="text-xs opacity-80"></div></div>
+    <button id="svPause" onclick="event.stopPropagation();stPause(!stPaused)" class="ib text-white" title="Pause"></button>
+    <button onclick="event.stopPropagation();stMenu(event)" class="ib text-white" title="More"><svg class="ic ic-l"><use href="#i-more"/></svg></button>
+    <button onclick="event.stopPropagation();closeSt()" class="ib text-white" title="Close"><svg class="ic ic-l"><use href="#i-x"/></svg></button>
+  </div>
+  <div id="svTx" class="flex-1 flex items-center justify-center text-center text-2xl md:text-4xl font-semibold px-4 md:px-8 min-h-0 overflow-hidden"></div>
+  <div id="svRp" class="p-3 max-w-xl w-full mx-auto" onclick="event.stopPropagation()">
+    <div id="svRx" class="flex justify-center gap-4 text-3xl mb-3"></div>
+    <input id="svIn" style="color:#fff" onfocus="stPause(true)" onblur="stPause(false)" onkeydown="stReply(event)" placeholder="Reply…" class="w-full rounded-full bg-white/20 px-4 py-2.5 text-sm">
+  </div>
+  <div id="svOwn" class="p-3 text-center" style="display:none" onclick="event.stopPropagation()"><button onclick="stViewers()" class="text-white inline-flex items-center gap-2 text-sm"><svg class="ic"><use href="#i-eye"/></svg><span id="svCnt">0</span> views</button></div>
+</div>
+
+<div id="cp" style="display:none" class="fixed inset-0 z-[60] flex-col text-white">
+  <div class="flex items-center px-3 py-3"><button onclick="$('cp').style.display='none'" class="ib text-white"><svg class="ic ic-l"><use href="#i-x"/></svg></button><span class="flex-1 text-center text-sm">New status</span><span class="w-10"></span></div>
+  <div class="flex-1 flex items-center justify-center px-6 md:px-8"><textarea id="cpTx" style="color:#fff" placeholder="Type a status" class="w-full max-w-xl text-center text-2xl md:text-3xl font-semibold resize-none" rows="4"></textarea></div>
+  <div class="flex items-center gap-2 p-4">
+    <div id="cpCol" class="flex gap-2 flex-1"></div>
+    <button type="button" onclick="$('fSt').click()" class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center" title="Photo status"><svg class="ic"><use href="#i-image"/></svg></button>
+    <button type="button" onclick="$('fStV').click()" class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center" title="Video status"><svg class="ic"><use href="#i-video"/></svg></button>
+    <input type="file" id="fSt" accept="image/*" class="hidden" onchange="pickStatus(this,'image')">
+    <input type="file" id="fStV" accept="video/*" class="hidden" onchange="pickStatus(this,'video')">
+    <button onclick="postSt()" class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center"><svg class="ic"><use href="#i-send"/></svg></button>
+  </div>
+</div>
+
+<div id="set" class="hidden fixed inset-0 z-50 bg-black/50 flex justify-end" onclick="if(event.target===this)openSet(false)">
+  <div class="w-full max-w-sm h-full panel overflow-y-auto scr p-5">
+    <div class="flex items-center mb-5"><h2 class="font-bold text-lg flex-1">Settings</h2><button onclick="openSet(false)" class="ib"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="flex flex-col items-center mb-6">
+      <div id="prAv" class="avLg cursor-pointer" onclick="openProfile('me')" title="View profile"></div>
+      <p id="prP" class="text-xs mut mt-2"></p>
+    </div>
+    <div class="set-card">
+      <h4>Profile</h4>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-user-plus"/></svg><input id="prN" oninput="P.name=this.value;prUpd();saveProfile()" placeholder="Name"></div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-info"/></svg><input id="prA" oninput="P.about=this.value;saveProfile()" placeholder="About"></div>
+    </div>
+    <div class="set-card">
+      <h4>Business info</h4>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-briefcase"/></svg><input id="prBizName" oninput="P.bizName=this.value;saveProfile()" placeholder="Business name"></div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-columns"/></svg>
+        <select id="prBizCat" onchange="P.bizCat=this.value;saveProfile()">
+          <option value="">Category</option><option>Retail</option><option>Food &amp; drink</option><option>Health</option><option>Education</option><option>Professional services</option><option>Technology</option><option>Transport</option><option>Other</option>
+        </select>
+      </div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-pencil"/></svg><input id="prBizDesc" oninput="P.bizDesc=this.value;saveProfile()" placeholder="Description"></div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-globe"/></svg><input id="prBizUrl" oninput="P.bizUrl=this.value;saveProfile()" placeholder="Website" inputmode="url"></div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-mail"/></svg><input id="prBizEmail" oninput="P.bizEmail=this.value;saveProfile()" placeholder="Email" inputmode="email"></div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-map-pin"/></svg><input id="prBizAddr" oninput="P.bizAddr=this.value;saveProfile()" placeholder="Address"></div>
+      <div class="set-row"><svg class="ic ic-s mut"><use href="#i-clock"/></svg><input id="prBizHours" oninput="P.bizHours=this.value;saveProfile()" placeholder="Opening hours (e.g. Mon–Fri 9–5)"></div>
+    </div>
+    <div class="set-card"><h4>Appearance</h4><p class="text-xs mut mb-2">Accent colour</p><div id="sws" class="flex gap-3 mb-4"></div><p class="text-xs mut mb-2">Chat wallpaper</p><div id="wps" class="flex gap-2 flex-wrap mb-4"></div><p class="text-xs mut mb-1">Message text size <span id="fsV"></span></p><input id="fsR" type="range" min="12" max="20" step="1" class="w-full" oninput="setFs(this.value)"></div>
+    <div class="set-card"><h4>Chats</h4><div id="cfgs" class="flex flex-col gap-4"></div></div>
+    <div class="set-card"><h4>Privacy &amp; alerts</h4><div id="tgs" class="flex flex-col gap-4"></div></div>
+    <div id="setExtra"></div>
+    <button id="instBtn" onclick="installApp()" style="display:none" class="mb-3 w-full border bd rounded-xl py-2.5 text-sm items-center justify-center gap-2"><svg class="ic ic-s"><use href="#i-download"/></svg> Install LIBRA on this device</button>
+    <button onclick="lockNow()" class="mb-2 w-full border bd rounded-xl py-2.5 text-sm flex items-center justify-center gap-2"><svg class="ic ic-s"><use href="#i-lock"/></svg> Lock LIBRA now</button>
+    <button onclick="logout()" class="w-full border bd rounded-xl py-2.5 text-sm text-red-500 flex items-center justify-center gap-2"><svg class="ic ic-s"><use href="#i-logout"/></svg> Log out</button>
+    <button onclick="deleteAccount()" class="mt-2 w-full rounded-xl py-2.5 text-sm text-red-500 flex items-center justify-center gap-2"><svg class="ic ic-s"><use href="#i-trash"/></svg> Delete my account</button>
+  </div>
+</div>
+
+<input type="file" id="fGAv" accept="image/*" class="hidden" onchange="setGroupPhoto(this)">
+<script src="/js/core.js"></script>
+<script src="/js/media.js"></script>
+<script src="/js/social.js"></script>
+</body>
+</html>

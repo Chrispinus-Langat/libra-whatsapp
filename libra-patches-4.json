@@ -1,0 +1,19 @@
+{
+ "src/server.js": [
+  {
+   "name": "dev fallback: keep the code valid",
+   "find": "// while developing, never get stuck: show the code in the terminal and carry on",
+   "replace": "// while developing, never get stuck: show the code in the terminal and carry on\n    // (the failed-SMS branch above deleted the code, so store it again or verifying would say \"expired\")\n    if (NODE_ENV !== 'production') await q(`INSERT INTO otp_codes(phone, code_hash, expires_at) VALUES($1,$2, now() + interval '5 minutes')\n      ON CONFLICT (phone) DO UPDATE SET code_hash=$2, expires_at=excluded.expires_at, attempts=0`, [phone, hash(code)]);"
+  },
+  {
+   "name": "check expiry with the database clock",
+   "find": "const [otp] = await q('SELECT * FROM otp_codes WHERE phone=$1', [phone]);",
+   "replace": "const [otp] = await q('SELECT *, (expires_at < now()) AS expired FROM otp_codes WHERE phone=$1', [phone]);"
+  },
+  {
+   "name": "say which problem it is",
+   "find": "if (!otp || otp.expires_at < new Date() || otp.attempts >= 5) return res.status(400).json({ error: 'Code expired. Request a new one.' });",
+   "replace": "if (!otp) return res.status(400).json({ error: 'No code is waiting for this number. Tap \"Resend code\".' });\n  if (otp.expired) return res.status(400).json({ error: 'That code has expired. Tap \"Resend code\" for a new one.' });\n  if (otp.attempts >= 5) return res.status(429).json({ error: 'Too many wrong tries. Tap \"Resend code\" for a new one.' });"
+  }
+ ]
+}

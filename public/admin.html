@@ -1,0 +1,23 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LIBRA admin</title>
+<style>body{font:14px Montserrat,system-ui,sans-serif;max-width:920px;margin:20px auto;padding:0 12px;background:#f4f1ec;color:#16181d}
+.c{background:#fff;border-radius:12px;padding:12px 14px;margin:10px 0;box-shadow:0 1px 2px #0001}.m{color:#6b7280;font-size:12px}
+button{border:0;border-radius:8px;padding:6px 12px;cursor:pointer;background:#14b8a6;color:#fff}button.r{background:#ef4444}.q{background:#f3f4f6;border-radius:8px;padding:6px 8px;margin:6px 0}</style></head>
+<body><h1>LIBRA reports</h1><p class="m">Sign in to LIBRA with an admin number (ADMIN_PHONES in .env), then open this page.</p><div id="out">Loading…</div>
+<script>
+const T=localStorage.getItem('libra_token'), out=document.getElementById('out');
+const call=async(p,m='GET')=>{const r=await fetch('/api/extras'+p,{method:m,headers:{Authorization:'Bearer '+T}});if(!r.ok)throw new Error(r.status===403?'Not an admin':'Error '+r.status);return r.status===204?null:r.json()};
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+async function load(){
+  try{const rows=await call('/admin/reports');out.textContent='';
+    if(!rows.length)out.textContent='No reports.';
+    rows.forEach(r=>{const c=el('div','c');
+      c.append(el('div','',`${r.reason} - ${r.target} (${r.target_phone})${r.suspended?' [SUSPENDED]':''}`));
+      c.append(el('div','m',`Reported by ${r.reporter} (${r.reporter_phone}) on ${new Date(r.created_at).toLocaleString()}`));
+      if(r.message)c.append(el('div','q',r.message)); if(r.details)c.append(el('div','q',r.details));
+      const b=el('button',r.suspended?'':'r',r.suspended?'Unsuspend':'Suspend account');
+      b.onclick=async()=>{b.disabled=true;await call(`/admin/${r.suspended?'unsuspend':'suspend'}/${r.target_id}`,'POST');load()};
+      c.append(b);out.append(c)})
+  }catch(e){out.textContent=e.message}
+}
+load();
+</script></body></html>
